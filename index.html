@@ -3,61 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>洛克王国世界 - 孵蛋组查询</title>
+<title>洛克王国世界 - 孵蛋查询</title>
 <style>
-/* ========== 全局样式 ========== */
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
 body{background:#f5f5f5;padding:20px}
 .container{max-width:1400px;margin:0 auto;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);overflow:hidden}
-
-/* ========== 头部 ========== */
 .header{background:linear-gradient(135deg,#ff9a9e 0,#fecfef 100%);padding:20px;text-align:center;color:white;position:relative}
 .header h1{font-size:28px}
 .back-btn{position:absolute;left:20px;top:50%;transform:translateY(-50%);padding:8px 16px;background:rgba(255,255,255,0.3);color:white;border:none;border-radius:6px;cursor:pointer;display:none}
 .back-btn:hover{background:rgba(255,255,255,0.5)}
 
-/* ========== 搜索 ========== */
 .search-bar{padding:20px;background:#fafafa;border-bottom:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
 .search-input-wrapper{position:relative;flex:1;min-width:200px}
 .search-bar input{padding:10px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%}
 .clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer;color:#999}
-.clear-btn:hover{color:#ff6b81}
-.search-btn{padding:10px 20px;background:#ff6b81;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
-.search-btn:hover{background:#ff4767}
+.search-btn{padding:10px 20px;background:#ff6b81;color:white;border:none;border-radius:8px;font-weight:bold}
 
 .tips-text{padding:15px 20px;background:#f8f9fa;border-bottom:1px solid #eee;font-size:14px;color:#666;text-align:center}
 
-/* ========== 蛋组标签 ========== */
 .egg-group-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:15px 20px;background:#fff;border-bottom:1px solid #eee}
 .egg-group-tab{padding:8px 16px;border-radius:20px;background:#f0f0f0;cursor:pointer;font-size:14px;border:none}
 .egg-group-tab.active{background:#ff6b81;color:white}
-.egg-group-tab:hover:not(.active){background:#f8f8f8}
 
-/* ========== 宠物卡片 ========== */
 .pet-grid,.match-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;padding:20px}
 .pet-card,.match-item{background:white;border:1px solid #eee;border-radius:10px;padding:12px;text-align:center;transition:all 0.3s;cursor:pointer}
-.pet-card:hover,.match-item:hover{box-shadow:0 4px 12px rgba(255,107,129,0.2);transform:translateY(-2px)}
-.pet-img,.small-img{width:100px;height:100px;border-radius:8px;overflow:hidden;margin:0 auto 8px}
+.pet-img,.small-img{width:100px;height:100px;border-radius:8px;overflow:hidden;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;background:#f6f6f6;color:#999;font-size:12px}
 .pet-img img,.small-img img{width:100%;height:100%;object-fit:cover}
 .pet-name{font-size:14px;font-weight:bold;color:#333;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pet-group{font-size:12px;color:#999}
 
-/* ========== 详情页 ========== */
 .result-panel{padding:30px 20px 20px;background:#fff9f9;min-height:calc(100vh - 200px);display:none}
 .result-panel h3{color:#ff6b81;margin-bottom:20px;font-size:20px;text-align:center}
 .current-pet{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:30px}
-.current-pet .big-img{width:160px;height:160px;border-radius:12px;overflow:hidden;border:3px solid #ffd6dc}
+.current-pet .big-img{width:160px;height:160px;border-radius:12px;overflow:hidden;border:3px solid #ffd6dc;background:#f6f6f6;display:flex;align-items:center;justify-content:center;color:#999}
 .current-pet .big-img img{width:100%;height:100%;object-fit:cover}
 .empty{padding:20px 0;color:#666;text-align:center;grid-column:1/-1}
 
-/* ========== 孵蛋弹窗（每个宠物专属蛋）========== */
 .egg-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:9999}
 .egg-modal{background:white;border-radius:16px;width:90%;max-width:520px;padding:24px;position:relative;text-align:center}
 .egg-close{position:absolute;top:12px;right:16px;font-size:26px;cursor:pointer;color:#666}
-.egg-title{font-size:20px;font-weight:bold;margin-bottom:20px;color:#333}
+.egg-title{font-size:20px;font-weight:bold;margin-bottom:20px}
 .egg-images{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
 .egg-item{width:100px}
-.egg-item img{width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px}
+.egg-item img{width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#f6f6f6}
 .egg-label{margin-top:8px;font-size:14px;color:#555;font-weight:bold}
 </style>
 </head>
@@ -66,7 +54,7 @@ body{background:#f5f5f5;padding:20px}
 <div class="container">
   <div class="header">
     <button class="back-btn" id="backBtn">← 返回</button>
-    <h1>洛克王国世界 - 孵蛋组查询系统</h1>
+    <h1>洛克王国世界 - 孵蛋查询系统</h1>
   </div>
 
   <div class="search-bar">
@@ -74,7 +62,7 @@ body{background:#f5f5f5;padding:20px}
       <input type="text" id="petSearch" placeholder="搜索宠物名称...">
       <button class="clear-btn">×</button>
     </div>
-    <button class="search-btn">查询孵蛋匹配</button>
+    <button class="search-btn">查询孵蛋</button>
   </div>
 
   <div class="tips-text">蛋随母系 母亲是什么宠物孵出来就是什么 | 部分宠物多组别</div>
@@ -106,22 +94,21 @@ body{background:#f5f5f5;padding:20px}
   </div>
 </div>
 
-<!-- 孵蛋弹窗（每个精灵专属三种蛋） -->
 <div class="egg-modal-overlay" id="eggModalOverlay">
   <div class="egg-modal">
     <span class="egg-close" id="eggCloseBtn">×</span>
     <div class="egg-title" id="eggModalTitle">孵蛋预览</div>
     <div class="egg-images">
       <div class="egg-item">
-        <img id="eggNormalImg" alt="普通蛋">
+        <div class="pet-img" id="eggNormalContainer"></div>
         <div class="egg-label">普通蛋</div>
       </div>
       <div class="egg-item">
-        <img id="eggSpecialImg" alt="异色蛋">
+        <div class="pet-img" id="eggSpecialContainer"></div>
         <div class="egg-label">异色蛋</div>
       </div>
       <div class="egg-item">
-        <img id="eggRainbowImg" alt="炫彩蛋">
+        <div class="pet-img" id="eggRainbowContainer"></div>
         <div class="egg-label">炫彩蛋</div>
       </div>
     </div>
@@ -129,37 +116,14 @@ body{background:#f5f5f5;padding:20px}
 </div>
 
 <script>
-// ========== 路径自动适配（核心：本地/GitHub 自动切换） ==========
 const PATH_CONFIG = {
-  // 判断是否是本地环境（本地地址包含 "localhost" 或 "127.0.0.1"，或文件协议）
   isLocal: window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1",
-  // GitHub 配置（上传时用）
-  github: {
-    user: "MIXHS",
-    repo: "txm.github.io",
-    baseUrl: ""
-  },
-  // 初始化路径
-  init() {
-    if (!this.isLocal) {
-      this.github.baseUrl = `https://${this.github.user}.github.io/${this.github.repo}/pet-img/`;
-    }
-  },
-  // 获取图片路径（自动选本地/GitHub）
-  getImageUrl(fileName) {
-    if (this.isLocal) {
-      // 本地路径：当前HTML文件同级的 pet-img 文件夹
-      return `./pet-img/${fileName}`;
-    } else {
-      // GitHub 路径
-      return this.github.baseUrl + fileName;
-    }
-  }
+  github: { user: "MIXHS", repo: "txm.github.io", baseUrl: "" },
+  init() { if (!this.isLocal) this.github.baseUrl = `https://${this.github.user}.github.io/${this.github.repo}/pet-img/`; },
+  getImageUrl(fileName) { return this.isLocal ? `./pet-img/${fileName}` : this.github.baseUrl + fileName; }
 };
-// 初始化路径配置
 PATH_CONFIG.init();
 
-// ========== 宠物数据 ==========
 const petData = [
 { name: "格斗小八", groups: ["拟人组"] },
 { name: "格斗小六", groups: ["拟人组"] },
@@ -201,7 +165,7 @@ const petData = [
 { name: "梦想三三", groups: ["妖精组","怪兽组"] },
 { name: "棋棋", groups: ["妖精组"] },
 { name: "迷迷箱怪", groups: ["妖精组","机械组"] },
-{ name: "袭卡", groups: ["妖精组","动物组"] },
+{ name: "裘卡", groups: ["妖精组","动物组"] },
 { name: "花衣蝶", groups: ["妖精组","昆虫组"] },
 { name: "画精灵", groups: ["妖精组"] },
 { name: "幽影树", groups: ["妖精组","植物组"] },
@@ -229,7 +193,7 @@ const petData = [
 { name: "游蛇魔使", groups: ["两栖组"] },
 { name: "海豹船长", groups: ["两栖组"] },
 { name: "鳗尾兽", groups: ["两栖组"] },
-{ name: "卷胡巨懒", groups: ["两栖组"] },
+{ name: "卷胡巨獭", groups: ["两栖组"] },
 { name: "水泡壳", groups: ["两栖组"] },
 { name: "卡瓦重", groups: ["两栖组"] },
 
@@ -306,7 +270,7 @@ const petData = [
 { name: "奔波鼠", groups: ["动物组"] },
 { name: "优优", groups: ["动物组"] },
 { name: "巨噬针鼹", groups: ["动物组","怪兽组"] },
-{ name: "星光狮星", groups: ["动物组"] },
+{ name: "星光狮", groups: ["动物组"] },
 { name: "花影羚羊", groups: ["动物组"] },
 { name: "月牙雪熊", groups: ["动物组"] },
 { name: "雅丹鬃", groups: ["动物组"] },
@@ -317,7 +281,6 @@ const petData = [
 { name: "爵士鹿", groups: ["动物组"] }
 ];
 
-// ========== DOM 获取 ==========
 const dom = {
   petGrid: document.getElementById("petGrid"),
   matchList: document.getElementById("matchList"),
@@ -327,138 +290,91 @@ const dom = {
   resultPanel: document.querySelector(".result-panel"),
   eggModalOverlay: document.getElementById("eggModalOverlay"),
   eggModalTitle: document.getElementById("eggModalTitle"),
-  eggNormalImg: document.getElementById("eggNormalImg"),
-  eggSpecialImg: document.getElementById("eggSpecialImg"),
-  eggRainbowImg: document.getElementById("eggRainbowImg"),
+  eggNormalContainer: document.getElementById("eggNormalContainer"),
+  eggSpecialContainer: document.getElementById("eggSpecialContainer"),
+  eggRainbowContainer: document.getElementById("eggRainbowContainer"),
   eggCloseBtn: document.getElementById("eggCloseBtn")
 };
 
-// ========== 工具函数 ==========
-// 获取宠物头像路径
-function getPetImageUrl(petName) {
-  const fileName = `${petName}.png`;
-  const url = PATH_CONFIG.getImageUrl(fileName);
-  console.log("宠物头像路径：", url); // 调试用，可删除
-  return url;
+function createImageElement(url) {
+  const container = document.createElement("div");
+  container.className = "pet-img";
+  const img = document.createElement("img");
+  img.src = url;
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "cover";
+  container.appendChild(img);
+
+  img.onerror = function() {
+    container.innerHTML = "";
+    container.innerText = "暂无素材";
+  };
+  return container;
 }
 
-// 获取宠物蛋图片路径
-function getEggImageUrl(petName, type) {
-  const fileName = `${petName}_蛋_${type}.png`;
-  const url = PATH_CONFIG.getImageUrl(fileName);
-  console.log("蛋图片路径：", url); // 调试用，可删除
-  return url;
-}
+function getPetImageUrl(petName) { return PATH_CONFIG.getImageUrl(`${petName}.png`); }
+function getEggImageUrl(petName, type) { return PATH_CONFIG.getImageUrl(`${petName}_蛋_${type}.png`); }
 
-// 生成占位符图片
-function getPlaceholderImage(text) {
-  return `https://via.placeholder.com/100?text=${encodeURIComponent(text)}`;
-}
-
-// ========== 孵蛋弹窗 ==========
 function openEggModal(petName) {
-  // 设置标题
   dom.eggModalTitle.textContent = `${petName} 孵蛋预览`;
   
-  // 普通蛋
-  dom.eggNormalImg.src = "";
-  dom.eggNormalImg.onerror = null;
-  dom.eggNormalImg.src = getEggImageUrl(petName, "普通");
-  dom.eggNormalImg.onerror = function() {
-    this.src = getPlaceholderImage(`${petName}-普通蛋`);
-  };
+  dom.eggNormalContainer.innerHTML = "";
+  dom.eggNormalContainer.appendChild(createImageElement(getEggImageUrl(petName, "普通")));
+  
+  dom.eggSpecialContainer.innerHTML = "";
+  dom.eggSpecialContainer.appendChild(createImageElement(getEggImageUrl(petName, "异色")));
+  
+  dom.eggRainbowContainer.innerHTML = "";
+  dom.eggRainbowContainer.appendChild(createImageElement(getEggImageUrl(petName, "炫彩")));
 
-  // 异色蛋
-  dom.eggSpecialImg.src = "";
-  dom.eggSpecialImg.onerror = null;
-  dom.eggSpecialImg.src = getEggImageUrl(petName, "异色");
-  dom.eggSpecialImg.onerror = function() {
-    this.src = getPlaceholderImage(`${petName}-异色蛋`);
-  };
-
-  // 炫彩蛋
-  dom.eggRainbowImg.src = "";
-  dom.eggRainbowImg.onerror = null;
-  dom.eggRainbowImg.src = getEggImageUrl(petName, "炫彩");
-  dom.eggRainbowImg.onerror = function() {
-    this.src = getPlaceholderImage(`${petName}-炫彩蛋`);
-  };
-
-  // 显示弹窗
   dom.eggModalOverlay.style.display = "flex";
 }
 
-// 关闭弹窗
-function closeEggModal() {
-  dom.eggModalOverlay.style.display = "none";
-}
+function closeEggModal() { dom.eggModalOverlay.style.display = "none"; }
 
-// ========== 渲染宠物列表 ==========
 function renderPetList(group = "全部", keyword = "") {
   dom.petGrid.innerHTML = "";
-  const filteredPets = petData.filter(pet => {
-    const matchGroup = group === "全部" || pet.groups.includes(group);
-    const matchKeyword = pet.name.includes(keyword);
-    return matchGroup && matchKeyword;
-  });
-
-  filteredPets.forEach(pet => {
-    const petCard = document.createElement("div");
-    petCard.className = "pet-card";
-    petCard.innerHTML = `
-      <div class="pet-img"><img src="${getPetImageUrl(pet.name)}" alt="${pet.name}" onerror="this.src='${getPlaceholderImage(pet.name)}'"></div>
-      <div class="pet-name">${pet.name}</div>
-      <div class="pet-group">${pet.groups.join(" / ")}</div>
+  const list = petData.filter(p => (group === "全部" || p.groups.includes(group)) && p.name.includes(keyword));
+  list.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "pet-card";
+    el.innerHTML = `
+      <div class="pet-img"></div>
+      <div class="pet-name">${p.name}</div>
+      <div class="pet-group">${p.groups.join(" / ")}</div>
     `;
-    petCard.onclick = () => openPetDetail(pet.name);
-    dom.petGrid.appendChild(petCard);
+    el.querySelector(".pet-img").appendChild(createImageElement(getPetImageUrl(p.name)));
+    el.onclick = () => openPetDetail(p.name);
+    dom.petGrid.appendChild(el);
   });
 }
 
-// ========== 打开宠物详情页 ==========
 function openPetDetail(petName) {
-  // 隐藏首页元素
   document.querySelector(".search-bar").style.display = "none";
   document.querySelector(".egg-group-tabs").style.display = "none";
   document.querySelector(".tips-text").style.display = "none";
   dom.petGrid.style.display = "none";
-  // 显示详情页
   dom.resultPanel.style.display = "block";
   dom.backBtn.style.display = "block";
 
-  // 渲染当前宠物
-  const currentPet = petData.find(p => p.name === petName);
-  dom.currentPet.innerHTML = `
-    <div class="big-img"><img src="${getPetImageUrl(currentPet.name)}" alt="${currentPet.name}" onerror="this.src='${getPlaceholderImage(currentPet.name)}'"></div>
-    <div><strong>${currentPet.name}</strong></div>
-    <div style="font-size:14px;color:#666;">${currentPet.groups.join(" / ")}</div>
-  `;
+  const self = petData.find(p => p.name === petName);
+  dom.currentPet.innerHTML = `<div class="big-img"></div><div><strong>${self.name}</strong></div><div style="font-size:14px;color:#666;">${self.groups.join(" / ")}</div>`;
+  dom.currentPet.querySelector(".big-img").appendChild(createImageElement(getPetImageUrl(self.name)));
 
-  // 渲染匹配宠物
-  const matchedPets = petData.filter(pet => {
-    return pet.name !== petName && pet.groups.some(group => currentPet.groups.includes(group));
-  });
-
+  const matches = petData.filter(p => p.name !== petName && p.groups.some(g => self.groups.includes(g)));
   dom.matchList.innerHTML = "";
-  if (matchedPets.length === 0) {
-    dom.matchList.innerHTML = "<div class='empty'>暂无匹配的孵蛋宠物</div>";
-    return;
-  }
-
-  matchedPets.forEach(pet => {
-    const matchItem = document.createElement("div");
-    matchItem.className = "match-item";
-    matchItem.innerHTML = `
-      <div class="small-img"><img src="${getPetImageUrl(pet.name)}" alt="${pet.name}" onerror="this.src='${getPlaceholderImage(pet.name)}'"></div>
-      <div class="pet-name">${pet.name}</div>
-      <div class="pet-group">${pet.groups.join(" / ")}</div>
-    `;
-    matchItem.onclick = () => openEggModal(pet.name);
-    dom.matchList.appendChild(matchItem);
+  if (!matches.length) { dom.matchList.innerHTML = "<div class='empty'>暂无匹配</div>"; return; }
+  matches.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "match-item";
+    el.innerHTML = `<div class="small-img"></div><div class="pet-name">${p.name}</div><div class="pet-group">${p.groups.join(" / ")}</div>`;
+    el.querySelector(".small-img").appendChild(createImageElement(getPetImageUrl(p.name)));
+    el.onclick = () => openEggModal(p.name);
+    dom.matchList.appendChild(el);
   });
 }
 
-// ========== 返回首页 ==========
 function goBackToHome() {
   document.querySelector(".search-bar").style.display = "flex";
   document.querySelector(".egg-group-tabs").style.display = "flex";
@@ -469,64 +385,28 @@ function goBackToHome() {
   closeEggModal();
 }
 
-// ========== 事件绑定 ==========
-// 搜索按钮
-document.querySelector(".search-btn").addEventListener("click", () => {
-  const keyword = dom.searchInput.value.trim();
-  if (!keyword) {
-    alert("请输入宠物名称！");
-    return;
-  }
-  const targetPet = petData.find(p => p.name === keyword);
-  if (targetPet) {
-    openPetDetail(targetPet.name);
-  } else {
-    alert("未找到该宠物，请检查名称是否正确！");
-  }
-});
+document.querySelector(".search-btn").onclick = () => {
+  const kw = dom.searchInput.value.trim();
+  if (!kw) return alert("请输入宠物名称");
+  const p = petData.find(x => x.name === kw);
+  p ? openPetDetail(p.name) : alert("未找到");
+};
 
-// 清空搜索框
-document.querySelector(".clear-btn").addEventListener("click", () => {
-  dom.searchInput.value = "";
-  renderPetList();
-});
+document.querySelector(".clear-btn").onclick = () => { dom.searchInput.value = ""; renderPetList(); };
+dom.backBtn.onclick = goBackToHome;
+dom.eggCloseBtn.onclick = closeEggModal;
+dom.eggModalOverlay.onclick = e => e.target === dom.eggModalOverlay && closeEggModal();
+dom.searchInput.oninput = () => renderPetList(document.querySelector(".egg-group-tab.active").dataset.group, dom.searchInput.value);
+dom.searchInput.onkeydown = e => e.key === "Enter" && document.querySelector(".search-btn").click();
 
-// 返回按钮
-dom.backBtn.addEventListener("click", goBackToHome);
-
-// 关闭弹窗
-dom.eggCloseBtn.addEventListener("click", closeEggModal);
-
-// 点击弹窗外层关闭
-dom.eggModalOverlay.addEventListener("click", (e) => {
-  if (e.target === dom.eggModalOverlay) {
-    closeEggModal();
-  }
-});
-
-// 搜索框实时过滤
-dom.searchInput.addEventListener("input", () => {
-  const activeGroup = document.querySelector(".egg-group-tab.active").dataset.group;
-  renderPetList(activeGroup, dom.searchInput.value);
-});
-
-// 搜索框回车
-dom.searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    document.querySelector(".search-btn").click();
-  }
-});
-
-// 蛋组标签切换
 document.querySelectorAll(".egg-group-tab").forEach(tab => {
-  tab.addEventListener("click", () => {
+  tab.onclick = () => {
     document.querySelectorAll(".egg-group-tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     renderPetList(tab.dataset.group, dom.searchInput.value);
-  });
+  };
 });
 
-// ========== 初始化 ==========
 renderPetList();
 </script>
 </body>
