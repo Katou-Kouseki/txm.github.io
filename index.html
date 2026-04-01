@@ -1,740 +1,533 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>洛克王国世界 - 孵蛋组查询</title>
-    <style>
-        /* ========== 全局样式重置 ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国世界 - 孵蛋组查询</title>
+<style>
+/* ========== 全局样式 ========== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
+body{background:#f5f5f5;padding:20px}
+.container{max-width:1400px;margin:0 auto;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);overflow:hidden}
 
-        /* ========== 页面基础样式 ========== */
-        body {
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
+/* ========== 头部 ========== */
+.header{background:linear-gradient(135deg,#ff9a9e 0,#fecfef 100%);padding:20px;text-align:center;color:white;position:relative}
+.header h1{font-size:28px}
+.back-btn{position:absolute;left:20px;top:50%;transform:translateY(-50%);padding:8px 16px;background:rgba(255,255,255,0.3);color:white;border:none;border-radius:6px;cursor:pointer;display:none}
+.back-btn:hover{background:rgba(255,255,255,0.5)}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+/* ========== 搜索 ========== */
+.search-bar{padding:20px;background:#fafafa;border-bottom:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.search-input-wrapper{position:relative;flex:1;min-width:200px}
+.search-bar input{padding:10px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%}
+.clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer;color:#999}
+.clear-btn:hover{color:#ff6b81}
+.search-btn{padding:10px 20px;background:#ff6b81;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+.search-btn:hover{background:#ff4767}
 
-        /* ========== 头部样式 ========== */
-        .header {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            padding: 20px;
-            text-align: center;
-            color: white;
-            position: relative;
-        }
+.tips-text{padding:15px 20px;background:#f8f9fa;border-bottom:1px solid #eee;font-size:14px;color:#666;text-align:center}
 
-        .header h1 {
-            font-size: 28px;
-            font-weight: bold;
-        }
+/* ========== 蛋组标签 ========== */
+.egg-group-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:15px 20px;background:#fff;border-bottom:1px solid #eee}
+.egg-group-tab{padding:8px 16px;border-radius:20px;background:#f0f0f0;cursor:pointer;font-size:14px;border:none}
+.egg-group-tab.active{background:#ff6b81;color:white}
+.egg-group-tab:hover:not(.active){background:#f8f8f8}
 
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.3);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: none;
-            transition: background 0.2s;
-        }
+/* ========== 宠物卡片 ========== */
+.pet-grid,.match-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;padding:20px}
+.pet-card,.match-item{background:white;border:1px solid #eee;border-radius:10px;padding:12px;text-align:center;transition:all 0.3s;cursor:pointer}
+.pet-card:hover,.match-item:hover{box-shadow:0 4px 12px rgba(255,107,129,0.2);transform:translateY(-2px)}
+.pet-img,.small-img{width:100px;height:100px;border-radius:8px;overflow:hidden;margin:0 auto 8px}
+.pet-img img,.small-img img{width:100%;height:100%;object-fit:cover}
+.pet-name{font-size:14px;font-weight:bold;color:#333;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pet-group{font-size:12px;color:#999}
 
-        .back-btn:hover {
-            background: rgba(255,255,255,0.5);
-        }
+/* ========== 详情页 ========== */
+.result-panel{padding:30px 20px 20px;background:#fff9f9;min-height:calc(100vh - 200px);display:none}
+.result-panel h3{color:#ff6b81;margin-bottom:20px;font-size:20px;text-align:center}
+.current-pet{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:30px}
+.current-pet .big-img{width:160px;height:160px;border-radius:12px;overflow:hidden;border:3px solid #ffd6dc}
+.current-pet .big-img img{width:100%;height:100%;object-fit:cover}
+.empty{padding:20px 0;color:#666;text-align:center;grid-column:1/-1}
 
-        /* ========== 搜索栏样式 ========== */
-        .search-bar {
-            padding: 20px;
-            background: #fafafa;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .search-input-wrapper {
-            position: relative;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-bar input,
-        .search-bar select {
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        .clear-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #999;
-            transition: color 0.2s;
-        }
-
-        .clear-btn:hover {
-            color: #ff6b81;
-        }
-
-        .search-btn {
-            padding: 10px 20px;
-            background: #ff6b81;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .search-btn:hover {
-            background: #ff4767;
-        }
-
-        /* ========== 提示文本样式 ========== */
-        .tips-text {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            color: #666;
-            text-align: center;
-        }
-
-        /* ========== 蛋组标签样式 ========== */
-        .egg-group-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 15px 20px;
-            background: #fff;
-            border-bottom: 1px solid #eee;
-        }
-
-        .egg-group-tab {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #f0f0f0;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            border: none;
-        }
-
-        .egg-group-tab.active {
-            background: #ff6b81;
-            color: white;
-        }
-
-        .egg-group-tab:hover:not(.active) {
-            background: #f8f8f8;
-        }
-
-        /* ========== 宠物网格通用样式 ========== */
-        .pet-grid, .match-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-            padding: 20px;
-        }
-
-        /* ========== 宠物卡片样式 ========== */
-        .pet-card {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .pet-card:hover {
-            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* ========== 匹配项样式 ========== */
-        .match-item {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: default;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .match-item:hover {
-            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* ========== 图片容器通用样式 ========== */
-        .pet-img, .small-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 8px;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 12px;
-        }
-
-        .pet-img img, .small-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ========== 宠物信息文本样式 ========== */
-        .pet-card .pet-name, .match-item .pet-name {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .pet-card .pet-group, .match-item .pet-group {
-            font-size: 12px;
-            color: #999;
-            line-height: 1.4;
-        }
-
-        /* ========== 详情页样式 ========== */
-        .result-panel {
-            padding: 30px 20px 20px;
-            background: #fff9f9;
-            min-height: calc(100vh - 200px);
-            display: none;
-        }
-
-        .result-panel h3 {
-            color: #ff6b81;
-            margin-bottom: 20px;
-            font-size: 20px;
-            text-align: center;
-        }
-
-        .current-pet {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .current-pet .big-img {
-            width: 160px;
-            height: 160px;
-            border-radius: 12px;
-            background: #f5f5f5;
-            overflow: hidden;
-            border: 3px solid #ffd6dc;
-        }
-
-        .current-pet .big-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ========== 空数据样式 ========== */
-        .match-list > div.empty {
-            padding: 20px 0;
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            grid-column: 1/-1;
-        }
-    </style>
+/* ========== 孵蛋弹窗（每个宠物专属蛋）========== */
+.egg-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:9999}
+.egg-modal{background:white;border-radius:16px;width:90%;max-width:520px;padding:24px;position:relative;text-align:center}
+.egg-close{position:absolute;top:12px;right:16px;font-size:26px;cursor:pointer;color:#666}
+.egg-title{font-size:20px;font-weight:bold;margin-bottom:20px;color:#333}
+.egg-images{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.egg-item{width:100px}
+.egg-item img{width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px}
+.egg-label{margin-top:8px;font-size:14px;color:#555;font-weight:bold}
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- 页面头部 -->
-        <div class="header">
-            <button class="back-btn" id="backBtn" onclick="goBack()" aria-label="返回首页">← 返回</button>
-            <h1>洛克王国世界 - 孵蛋组查询系统</h1>
-        </div>
 
-        <!-- 搜索栏 -->
-        <div class="search-bar" id="searchBar">
-            <div class="search-input-wrapper">
-                <input type="text" id="petSearch" placeholder="搜索宠物名称...">
-                <button class="clear-btn" id="clearBtn" onclick="clearSearch()" aria-label="清除搜索">×</button>
-            </div>
-            <button class="search-btn" onclick="searchPet()">查询孵蛋匹配</button>
-        </div>
+<div class="container">
+  <div class="header">
+    <button class="back-btn" id="backBtn">← 返回</button>
+    <h1>洛克王国世界 - 孵蛋组查询系统</h1>
+  </div>
 
-        <!-- 提示文本 -->
-        <div class="tips-text" id="tipsText">蛋随母系 母亲是宠物孵出来的就是什么宠物 | 部分宠物属于多个孵蛋组，可在对应组别下都能查到</div>
-
-        <!-- 蛋组标签 -->
-        <div class="egg-group-tabs" id="eggTabs">
-            <button class="egg-group-tab active" data-group="全部">全部</button>
-            <button class="egg-group-tab" data-group="拟人组">拟人组</button>
-            <button class="egg-group-tab" data-group="天空组">天空组</button>
-            <button class="egg-group-tab" data-group="昆虫组">昆虫组</button>
-            <button class="egg-group-tab" data-group="两栖组">两栖组</button>
-            <button class="egg-group-tab" data-group="海洋组">海洋组</button>
-            <button class="egg-group-tab" data-group="矿石组">矿石组</button>
-            <button class="egg-group-tab" data-group="妖精组">妖精组</button>
-            <button class="egg-group-tab" data-group="乖乖组">乖乖组</button>
-            <button class="egg-group-tab" data-group="巨龙组">巨龙组</button>
-            <button class="egg-group-tab" data-group="动物组">动物组</button>
-            <button class="egg-group-tab" data-group="植物组">植物组</button>
-            <button class="egg-group-tab" data-group="怪兽组">怪兽组</button>
-            <button class="egg-group-tab" data-group="精灵组">精灵组</button>
-            <button class="egg-group-tab" data-group="机械组">机械组</button>
-        </div>
-
-        <!-- 宠物展示网格 -->
-        <div class="pet-grid" id="petGrid"></div>
-
-        <!-- 详情页：匹配结果面板 -->
-        <div class="result-panel" id="resultPanel">
-            <div class="current-pet" id="currentPet"></div>
-            <h3>可孵蛋匹配宠物（同组均可匹配）</h3>
-            <div class="match-list" id="matchList"></div>
-        </div>
+  <div class="search-bar">
+    <div class="search-input-wrapper">
+      <input type="text" id="petSearch" placeholder="搜索宠物名称...">
+      <button class="clear-btn">×</button>
     </div>
+    <button class="search-btn">查询孵蛋匹配</button>
+  </div>
 
-    <script>
-        // ========== 配置项（已修改为你的GitHub用户名 MIXHS） ==========
-        const GITHUB_CONFIG = {
-            username: "MIXHS",       // 你的GitHub用户名（大写 MIXHS）
-            repoName: "txm.github.io" // 你的仓库名
-        };
+  <div class="tips-text">蛋随母系 母亲是什么宠物孵出来就是什么 | 部分宠物多组别</div>
 
-        // ========== 宠物孵蛋组数据 ==========
-        const petEggGroupData = [
-            // 拟人组
-            { name: "格斗小八", groups: ["拟人组"] },
-            { name: "格斗小六", groups: ["拟人组"] },
-            { name: "格斗小五", groups: ["拟人组"] },
-            { name: "怒目怂猫", groups: ["拟人组", "动物组"] },
-            { name: "雪巨人", groups: ["拟人组", "怪兽组"] },
-            { name: "九幽菇", groups: ["拟人组", "植物组"] },
-            { name: "白发路路", groups: ["拟人组", "动物组"] },
-            { name: "厉毒修萝", groups: ["拟人组", "天空组"] },
-            { name: "健猫教练", groups: ["拟人组"] },
-            { name: "多灵主", groups: ["拟人组", "天空组"] },
-            { name: "影狸", groups: ["拟人组"] },
-            { name: "火焰猿", groups: ["拟人组", "动物组", "怪兽组"] },
-            { name: "帅帅魔偶", groups: ["拟人组"] },
-            { name: "瞌睡王", groups: ["拟人组", "怪兽组"] },
-            { name: "魔草巫灵", groups: ["拟人组"] },
-            { name: "朔夜伊芙", groups: ["拟人组", "妖精组"] },
-            { name: "武者鸡", groups: ["拟人组", "天空组"] },
-            { name: "绅士鸡", groups: ["拟人组", "天空组"] },
-            { name: "雪影娃娃", groups: ["拟人组", "妖精组"] },
-            { name: "立方人", groups: ["拟人组", "机械组"] },
+  <div class="egg-group-tabs">
+    <button class="egg-group-tab active" data-group="全部">全部</button>
+    <button class="egg-group-tab" data-group="拟人组">拟人组</button>
+    <button class="egg-group-tab" data-group="天空组">天空组</button>
+    <button class="egg-group-tab" data-group="昆虫组">昆虫组</button>
+    <button class="egg-group-tab" data-group="两栖组">两栖组</button>
+    <button class="egg-group-tab" data-group="海洋组">海洋组</button>
+    <button class="egg-group-tab" data-group="矿石组">矿石组</button>
+    <button class="egg-group-tab" data-group="妖精组">妖精组</button>
+    <button class="egg-group-tab" data-group="乖乖组">乖乖组</button>
+    <button class="egg-group-tab" data-group="巨龙组">巨龙组</button>
+    <button class="egg-group-tab" data-group="动物组">动物组</button>
+    <button class="egg-group-tab" data-group="植物组">植物组</button>
+    <button class="egg-group-tab" data-group="怪兽组">怪兽组</button>
+    <button class="egg-group-tab" data-group="精灵组">精灵组</button>
+    <button class="egg-group-tab" data-group="机械组">机械组</button>
+  </div>
 
-            // 妖精组
-            { name: "卡洛儿", groups: ["妖精组", "乖乖组"] },
-            { name: "龙鱼", groups: ["妖精组", "海洋组", "巨龙组"] },
-            { name: "寂灭骨龙", groups: ["妖精组", "怪兽组", "巨龙组"] },
-            { name: "春花兔", groups: ["妖精组", "动物组"] },
-            { name: "书魔虫", groups: ["妖精组"] },
-            { name: "嘟嘟锅", groups: ["妖精组"] },
-            { name: "雪灵", groups: ["妖精组"] },
-            { name: "伊兰亚龙", groups: ["妖精组", "巨龙组"] },
-            { name: "翼龙", groups: ["妖精组", "天空组", "巨龙组"] },
-            { name: "格兰球", groups: ["妖精组", "植物组"] },
-            { name: "兽花蕾", groups: ["妖精组", "植物组"] },
-            { name: "号儿鱼", groups: ["妖精组"] },
-            { name: "卡拉波斯", groups: ["妖精组"] },
-            { name: "小皮球", groups: ["妖精组", "乖乖组"] },
-            { name: "叮叮恶魔", groups: ["妖精组"] },
-            { name: "梦悠悠", groups: ["妖精组", "精灵组"] },
-            { name: "梦想三三", groups: ["妖精组", "怪兽组"] },
-            { name: "棋棋", groups: ["妖精组"] },
-            { name: "迷迷箱怪", groups: ["妖精组", "机械组"] },
-            { name: "袭卡", groups: ["妖精组", "动物组"] },
-            { name: "花衣蝶", groups: ["妖精组", "昆虫组"] },
-            { name: "画精灵", groups: ["妖精组"] },
-            { name: "幽影树", groups: ["妖精组", "植物组"] },
-            { name: "粉星仔", groups: ["妖精组", "天空组"] },
-            { name: "黑猫巫师", groups: ["妖精组", "动物组"] },
-            { name: "红绒十字", groups: ["妖精组"] },
-            { name: "酷拉", groups: ["妖精组"] },
-            { name: "里拉鳐", groups: ["妖精组", "海洋组"] },
+  <div class="pet-grid" id="petGrid"></div>
 
-            // 植物组
-            { name: "奇丽花", groups: ["植物组"] },
-            { name: "幻影灵菇", groups: ["植物组", "精灵组"] },
-            { name: "海枝枝", groups: ["植物组", "海洋组"] },
-            { name: "蹦蹦花", groups: ["植物组"] },
-            { name: "蒲公英娃娃", groups: ["植物组"] },
-            { name: "伊贝粉粉", groups: ["植物组"] },
-            { name: "菊花梨", groups: ["植物组"] },
-            { name: "怖哭菇", groups: ["植物组"] },
-            { name: "燃薪虫", groups: ["植物组", "昆虫组"] },
+  <div class="result-panel">
+    <div class="current-pet" id="currentPet"></div>
+    <h3>可孵蛋匹配宠物（同组均可匹配）</h3>
+    <div class="match-list" id="matchList"></div>
+  </div>
+</div>
 
-            // 两栖组
-            { name: "翠顶夫人", groups: ["两栖组", "天空组"] },
-            { name: "黑羽夫人", groups: ["两栖组", "天空组"] },
-            { name: "寒音蛇", groups: ["两栖组", "动物组"] },
-            { name: "嗜波螺", groups: ["两栖组", "矿石组"] },
-            { name: "石冠王蜥", groups: ["两栖组", "矿石组"] },
-            { name: "游蛇魔使", groups: ["两栖组"] },
-            { name: "海豹船长", groups: ["两栖组"] },
-            { name: "鳗尾兽", groups: ["两栖组"] },
-            { name: "卷胡巨懒", groups: ["两栖组"] },
-            { name: "水泡壳", groups: ["两栖组"] },
-            { name: "卡瓦重", groups: ["两栖组"] },
+<!-- 孵蛋弹窗（每个精灵专属三种蛋） -->
+<div class="egg-modal-overlay" id="eggModalOverlay">
+  <div class="egg-modal">
+    <span class="egg-close" id="eggCloseBtn">×</span>
+    <div class="egg-title" id="eggModalTitle">孵蛋预览</div>
+    <div class="egg-images">
+      <div class="egg-item">
+        <img id="eggNormalImg" alt="普通蛋">
+        <div class="egg-label">普通蛋</div>
+      </div>
+      <div class="egg-item">
+        <img id="eggSpecialImg" alt="异色蛋">
+        <div class="egg-label">异色蛋</div>
+      </div>
+      <div class="egg-item">
+        <img id="eggRainbowImg" alt="炫彩蛋">
+        <div class="egg-label">炫彩蛋</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-            // 矿石组
-            { name: "记忆石", groups: ["矿石组"] },
-            { name: "罗隐", groups: ["矿石组", "怪兽组"] },
-            { name: "布克棱岩", groups: ["矿石组", "怪兽组"] },
-            { name: "仪式巨像", groups: ["矿石组"] },
-            { name: "巨灵石", groups: ["矿石组"] },
-            { name: "晶石蜗", groups: ["矿石组"] },
+<script>
+// ========== 路径自动适配（核心：本地/GitHub 自动切换） ==========
+const PATH_CONFIG = {
+  // 判断是否是本地环境（本地地址包含 "localhost" 或 "127.0.0.1"，或文件协议）
+  isLocal: window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1",
+  // GitHub 配置（上传时用）
+  github: {
+    user: "MIXHS",
+    repo: "txm.github.io",
+    baseUrl: ""
+  },
+  // 初始化路径
+  init() {
+    if (!this.isLocal) {
+      this.github.baseUrl = `https://${this.github.user}.github.io/${this.github.repo}/pet-img/`;
+    }
+  },
+  // 获取图片路径（自动选本地/GitHub）
+  getImageUrl(fileName) {
+    if (this.isLocal) {
+      // 本地路径：当前HTML文件同级的 pet-img 文件夹
+      return `./pet-img/${fileName}`;
+    } else {
+      // GitHub 路径
+      return this.github.baseUrl + fileName;
+    }
+  }
+};
+// 初始化路径配置
+PATH_CONFIG.init();
 
-            // 机械组
-            { name: "波多西", groups: ["机械组", "怪兽组"] },
-            { name: "贝古斯", groups: ["机械组"] },
-            { name: "声波缇塔", groups: ["机械组"] },
-            { name: "帕帕斯卡", groups: ["机械组", "天空组"] },
-            { name: "圣剑-X", groups: ["机械组", "怪兽组"] },
-            { name: "权杖-V", groups: ["机械组"] },
-            { name: "溯源钟", groups: ["机械组", "天空组"] },
-            { name: "机甲小子", groups: ["机械组"] },
+// ========== 宠物数据 ==========
+const petData = [
+{ name: "格斗小八", groups: ["拟人组"] },
+{ name: "格斗小六", groups: ["拟人组"] },
+{ name: "格斗小五", groups: ["拟人组"] },
+{ name: "怒目怂猫", groups: ["拟人组","动物组"] },
+{ name: "雪巨人", groups: ["拟人组","怪兽组"] },
+{ name: "九幽菇", groups: ["拟人组","植物组"] },
+{ name: "白发路路", groups: ["拟人组","动物组"] },
+{ name: "厉毒修萝", groups: ["拟人组","天空组"] },
+{ name: "健猫教练", groups: ["拟人组"] },
+{ name: "多灵主", groups: ["拟人组","天空组"] },
+{ name: "影狸", groups: ["拟人组"] },
+{ name: "火焰猿", groups: ["拟人组","动物组","怪兽组"] },
+{ name: "帅帅魔偶", groups: ["拟人组"] },
+{ name: "瞌睡王", groups: ["拟人组","怪兽组"] },
+{ name: "魔草巫灵", groups: ["拟人组"] },
+{ name: "朔夜伊芙", groups: ["拟人组","妖精组"] },
+{ name: "武者鸡", groups: ["拟人组","天空组"] },
+{ name: "绅士鸡", groups: ["拟人组","天空组"] },
+{ name: "雪影娃娃", groups: ["拟人组","妖精组"] },
+{ name: "立方人", groups: ["拟人组","机械组"] },
 
-            // 昆虫组
-            { name: "芋香巨角蛛", groups: ["昆虫组"] },
-            { name: "食尘短绒", groups: ["昆虫组"] },
-            { name: "捕尘长绒", groups: ["昆虫组"] },
-            { name: "铠甲虫", groups: ["昆虫组"] },
-            { name: "窃光蚊", groups: ["昆虫组"] },
-            { name: "陨星虫", groups: ["昆虫组"] },
-            { name: "邪眼巨魔", groups: ["昆虫组", "怪兽组"] },
-            { name: "化蝶", groups: ["昆虫组", "乖乖组"] },
-            { name: "风滚暮虫", groups: ["昆虫组"] },
-            { name: "花魁蜂后", groups: ["昆虫组", "天空组"] },
+{ name: "卡洛儿", groups: ["妖精组","乖乖组"] },
+{ name: "龙鱼", groups: ["妖精组","海洋组","巨龙组"] },
+{ name: "寂灭骨龙", groups: ["妖精组","怪兽组","巨龙组"] },
+{ name: "春花兔", groups: ["妖精组","动物组"] },
+{ name: "书魔虫", groups: ["妖精组"] },
+{ name: "嘟嘟锅", groups: ["妖精组"] },
+{ name: "雪灵", groups: ["妖精组"] },
+{ name: "伊兰亚龙", groups: ["妖精组","巨龙组"] },
+{ name: "翼龙", groups: ["妖精组","天空组","巨龙组"] },
+{ name: "格兰球", groups: ["妖精组","植物组"] },
+{ name: "兽花蕾", groups: ["妖精组","植物组"] },
+{ name: "号儿鱼", groups: ["妖精组"] },
+{ name: "卡拉波斯", groups: ["妖精组"] },
+{ name: "小皮球", groups: ["妖精组","乖乖组"] },
+{ name: "叮叮恶魔", groups: ["妖精组"] },
+{ name: "梦悠悠", groups: ["妖精组","精灵组"] },
+{ name: "梦想三三", groups: ["妖精组","怪兽组"] },
+{ name: "棋棋", groups: ["妖精组"] },
+{ name: "迷迷箱怪", groups: ["妖精组","机械组"] },
+{ name: "袭卡", groups: ["妖精组","动物组"] },
+{ name: "花衣蝶", groups: ["妖精组","昆虫组"] },
+{ name: "画精灵", groups: ["妖精组"] },
+{ name: "幽影树", groups: ["妖精组","植物组"] },
+{ name: "粉星仔", groups: ["妖精组","天空组"] },
+{ name: "黑猫巫师", groups: ["妖精组","动物组"] },
+{ name: "红绒十字", groups: ["妖精组"] },
+{ name: "酷拉", groups: ["妖精组"] },
+{ name: "里拉鳐", groups: ["妖精组","海洋组"] },
 
-            // 怪兽组
-            { name: "乌拉塔", groups: ["怪兽组"] },
-            { name: "烈火守护", groups: ["怪兽组"] },
-            { name: "火神", groups: ["怪兽组", "精灵组"] },
+{ name: "奇丽花", groups: ["植物组"] },
+{ name: "幻影灵菇", groups: ["植物组","精灵组"] },
+{ name: "海枝枝", groups: ["植物组","海洋组"] },
+{ name: "蹦蹦花", groups: ["植物组"] },
+{ name: "蒲公英娃娃", groups: ["植物组"] },
+{ name: "伊贝粉粉", groups: ["植物组"] },
+{ name: "菊花梨", groups: ["植物组"] },
+{ name: "怖哭菇", groups: ["植物组"] },
+{ name: "燃薪虫", groups: ["植物组","昆虫组"] },
 
-            // 精灵组
-            { name: "水灵", groups: ["精灵组"] },
-            { name: "夜枭", groups: ["精灵组", "怪兽组"] },
-            { name: "果冻", groups: ["精灵组", "海洋组"] },
-            { name: "圣代甜甜", groups: ["精灵组", "乖乖组"] },
-            { name: "幽冥眼", groups: ["精灵组"] },
-            { name: "荆棘电环", groups: ["精灵组"] },
+{ name: "翠顶夫人", groups: ["两栖组","天空组"] },
+{ name: "黑羽夫人", groups: ["两栖组","天空组"] },
+{ name: "寒音蛇", groups: ["两栖组","动物组"] },
+{ name: "嗜波螺", groups: ["两栖组","矿石组"] },
+{ name: "石冠王蜥", groups: ["两栖组","矿石组"] },
+{ name: "游蛇魔使", groups: ["两栖组"] },
+{ name: "海豹船长", groups: ["两栖组"] },
+{ name: "鳗尾兽", groups: ["两栖组"] },
+{ name: "卷胡巨懒", groups: ["两栖组"] },
+{ name: "水泡壳", groups: ["两栖组"] },
+{ name: "卡瓦重", groups: ["两栖组"] },
 
-            // 天空组
-            { name: "星云旅者", groups: ["天空组"] },
-            { name: "泥吼牙", groups: ["天空组"] },
-            { name: "噼啪鸟", groups: ["天空组"] },
-            { name: "火羽", groups: ["天空组"] },
-            { name: "斑枭", groups: ["天空组"] },
-            { name: "高脚鹬", groups: ["天空组"] },
-            { name: "锤头鹳", groups: ["天空组"] },
-            { name: "魔眷鸟", groups: ["天空组", "乖乖组"] },
-            { name: "岚鸟", groups: ["天空组"] },
-            { name: "鸭吉吉", groups: ["天空组"] },
-            { name: "卷毛鸭", groups: ["天空组"] },
-            { name: "公平鸽", groups: ["天空组"] },
-            { name: "皇家狮鹫", groups: ["天空组", "动物组"] },
-            { name: "咔咔鸟", groups: ["天空组"] },
-            { name: "彩蝶鲨", groups: ["天空组", "海洋组"] },
+{ name: "记忆石", groups: ["矿石组"] },
+{ name: "罗隐", groups: ["矿石组","怪兽组"] },
+{ name: "布克棱岩", groups: ["矿石组","怪兽组"] },
+{ name: "仪式巨像", groups: ["矿石组"] },
+{ name: "巨灵石", groups: ["矿石组"] },
+{ name: "晶石蜗", groups: ["矿石组"] },
 
-            // 海洋组
-            { name: "深蓝鲸", groups: ["海洋组", "怪兽组"] },
-            { name: "利灯鱼", groups: ["海洋组"] },
-            { name: "琉璃水母", groups: ["海洋组"] },
-            { name: "闪电鳗鱼", groups: ["海洋组"] },
-            { name: "千棘盔", groups: ["海洋组"] },
-            { name: "月亮砣", groups: ["海洋组"] },
-            { name: "圆号鱼", groups: ["海洋组"] },
+{ name: "波多西", groups: ["机械组","怪兽组"] },
+{ name: "贝古斯", groups: ["机械组"] },
+{ name: "声波缇塔", groups: ["机械组"] },
+{ name: "帕帕斯卡", groups: ["机械组","天空组"] },
+{ name: "圣剑-X", groups: ["机械组","怪兽组"] },
+{ name: "权杖-V", groups: ["机械组"] },
+{ name: "溯源钟", groups: ["机械组","天空组"] },
+{ name: "机甲小子", groups: ["机械组"] },
 
-            // 动物组
-            { name: "遁地鼠", groups: ["动物组"] },
-            { name: "獠牙猪", groups: ["动物组"] },
-            { name: "音速犬", groups: ["动物组"] },
-            { name: "魔力猫", groups: ["动物组"] },
-            { name: "蹦床松鼠", groups: ["动物组"] },
-            { name: "电咩咩", groups: ["动物组"] },
-            { name: "白金独角兽", groups: ["动物组"] },
-            { name: "尖嘴狐仙", groups: ["动物组"] },
-            { name: "奔波鼠", groups: ["动物组"] },
-            { name: "优优", groups: ["动物组"] },
-            { name: "巨噬针鼹", groups: ["动物组", "怪兽组"] },
-            { name: "星光狮星", groups: ["动物组"] },
-            { name: "花影羚羊", groups: ["动物组"] },
-            { name: "月牙雪熊", groups: ["动物组"] },
-            { name: "雅丹鬃", groups: ["动物组"] },
-            { name: "恶魔狼", groups: ["动物组"] },
-            { name: "壳栗丝鼠", groups: ["动物组"] },
-            { name: "炽心勇狮", groups: ["动物组"] },
-            { name: "针叶巡林", groups: ["动物组"] },
-            { name: "爵士鹿", groups: ["动物组"] }
-        ];
+{ name: "芋香巨角蛛", groups: ["昆虫组"] },
+{ name: "食尘短绒", groups: ["昆虫组"] },
+{ name: "捕尘长绒", groups: ["昆虫组"] },
+{ name: "铠甲虫", groups: ["昆虫组"] },
+{ name: "窃光蚊", groups: ["昆虫组"] },
+{ name: "陨星虫", groups: ["昆虫组"] },
+{ name: "邪眼巨魔", groups: ["昆虫组","怪兽组"] },
+{ name: "化蝶", groups: ["昆虫组","乖乖组"] },
+{ name: "风滚暮虫", groups: ["昆虫组"] },
+{ name: "花魁蜂后", groups: ["昆虫组","天空组"] },
 
-        // ========== DOM元素获取 ==========
-        const dom = {
-            petGrid: document.getElementById("petGrid"),
-            resultPanel: document.getElementById("resultPanel"),
-            searchBar: document.getElementById("searchBar"),
-            eggTabs: document.getElementById("eggTabs"),
-            tipsText: document.getElementById("tipsText"),
-            backBtn: document.getElementById("backBtn"),
-            currentPet: document.getElementById("currentPet"),
-            matchList: document.getElementById("matchList"),
-            petSearch: document.getElementById("petSearch")
-        };
+{ name: "乌拉塔", groups: ["怪兽组"] },
+{ name: "烈火守护", groups: ["怪兽组"] },
+{ name: "火神", groups: ["怪兽组","精灵组"] },
 
-        // ========== 工具函数 ==========
-        /**
-         * 获取当前激活的蛋组
-         */
-        function getActiveGroup() {
-            return document.querySelector(".egg-group-tab.active").dataset.group;
-        }
+{ name: "水灵", groups: ["精灵组"] },
+{ name: "夜枭", groups: ["精灵组","怪兽组"] },
+{ name: "果冻", groups: ["精灵组","海洋组"] },
+{ name: "圣代甜甜", groups: ["精灵组","乖乖组"] },
+{ name: "幽冥眼", groups: ["精灵组"] },
+{ name: "荆棘电环", groups: ["精灵组"] },
 
-        /**
-         * 获取搜索框文本
-         */
-        function getSearchText() {
-            return dom.petSearch.value.trim();
-        }
+{ name: "星云旅者", groups: ["天空组"] },
+{ name: "泥吼牙", groups: ["天空组"] },
+{ name: "噼啪鸟", groups: ["天空组"] },
+{ name: "火羽", groups: ["天空组"] },
+{ name: "斑枭", groups: ["天空组"] },
+{ name: "高脚鹬", groups: ["天空组"] },
+{ name: "锤头鹳", groups: ["天空组"] },
+{ name: "魔眷鸟", groups: ["天空组","乖乖组"] },
+{ name: "岚鸟", groups: ["天空组"] },
+{ name: "鸭吉吉", groups: ["天空组"] },
+{ name: "卷毛鸭", groups: ["天空组"] },
+{ name: "公平鸽", groups: ["天空组"] },
+{ name: "皇家狮鹫", groups: ["天空组","动物组"] },
+{ name: "咔咔鸟", groups: ["天空组"] },
+{ name: "彩蝶鲨", groups: ["天空组","海洋组"] },
 
-        /**
-         * 获取宠物图片URL（适配GitHub Pages，已用你的用户名 MIXHS）
-         * @param {string} petName 宠物名称
-         * @returns {string} 图片完整URL
-         */
-        function getPetImgUrl(petName) {
-            // 构建GitHub Pages完整图片路径（用户名已改为 MIXHS）
-            const baseUrl = `https://${GITHUB_CONFIG.username}.github.io/${GITHUB_CONFIG.repoName}/pet-img/`;
-            // 中文编码处理，避免路径错误
-            const encodedName = encodeURIComponent(petName);
-            return `${baseUrl}${encodedName}.png`;
-        }
+{ name: "深蓝鲸", groups: ["海洋组","怪兽组"] },
+{ name: "利灯鱼", groups: ["海洋组"] },
+{ name: "琉璃水母", groups: ["海洋组"] },
+{ name: "闪电鳗鱼", groups: ["海洋组"] },
+{ name: "千棘盔", groups: ["海洋组"] },
+{ name: "月亮砣", groups: ["海洋组"] },
+{ name: "圆号鱼", groups: ["海洋组"] },
 
-        /**
-         * 渲染宠物卡片列表
-         * @param {string} filterGroup 筛选组别
-         * @param {string} searchText 搜索文本
-         */
-        function renderPetCards(filterGroup = "全部", searchText = "") {
-            dom.petGrid.innerHTML = "";
-            
-            // 筛选逻辑：组别匹配 + 名称匹配
-            const filteredPets = petEggGroupData.filter(pet => {
-                const isGroupMatch = filterGroup === "全部" || pet.groups.includes(filterGroup);
-                const isSearchMatch = pet.name.includes(searchText);
-                return isGroupMatch && isSearchMatch;
-            });
+{ name: "遁地鼠", groups: ["动物组"] },
+{ name: "獠牙猪", groups: ["动物组"] },
+{ name: "音速犬", groups: ["动物组"] },
+{ name: "魔力猫", groups: ["动物组"] },
+{ name: "蹦床松鼠", groups: ["动物组"] },
+{ name: "电咩咩", groups: ["动物组"] },
+{ name: "白金独角兽", groups: ["动物组"] },
+{ name: "尖嘴狐仙", groups: ["动物组"] },
+{ name: "奔波鼠", groups: ["动物组"] },
+{ name: "优优", groups: ["动物组"] },
+{ name: "巨噬针鼹", groups: ["动物组","怪兽组"] },
+{ name: "星光狮星", groups: ["动物组"] },
+{ name: "花影羚羊", groups: ["动物组"] },
+{ name: "月牙雪熊", groups: ["动物组"] },
+{ name: "雅丹鬃", groups: ["动物组"] },
+{ name: "恶魔狼", groups: ["动物组"] },
+{ name: "壳栗丝鼠", groups: ["动物组"] },
+{ name: "炽心勇狮", groups: ["动物组"] },
+{ name: "针叶巡林", groups: ["动物组"] },
+{ name: "爵士鹿", groups: ["动物组"] }
+];
 
-            // 渲染卡片
-            filteredPets.forEach(pet => {
-                const petCard = document.createElement("div");
-                petCard.className = "pet-card";
-                const groupText = pet.groups.join(" / ");
-                
-                petCard.innerHTML = `
-                    <div class="pet-img">
-                        <img 
-                            loading="lazy" 
-                            src="${getPetImgUrl(pet.name)}" 
-                            alt="${pet.name}" 
-                            onerror="this.onerror=null;this.src='https://via.placeholder.com/100?text=${encodeURIComponent(pet.name)}';"
-                        >
-                    </div>
-                    <div class="pet-name">${pet.name}</div>
-                    <div class="pet-group">${groupText}</div>
-                `;
-                
-                petCard.addEventListener("click", () => openDetailPage(pet.name));
-                dom.petGrid.appendChild(petCard);
-            });
-        }
+// ========== DOM 获取 ==========
+const dom = {
+  petGrid: document.getElementById("petGrid"),
+  matchList: document.getElementById("matchList"),
+  currentPet: document.getElementById("currentPet"),
+  searchInput: document.getElementById("petSearch"),
+  backBtn: document.getElementById("backBtn"),
+  resultPanel: document.querySelector(".result-panel"),
+  eggModalOverlay: document.getElementById("eggModalOverlay"),
+  eggModalTitle: document.getElementById("eggModalTitle"),
+  eggNormalImg: document.getElementById("eggNormalImg"),
+  eggSpecialImg: document.getElementById("eggSpecialImg"),
+  eggRainbowImg: document.getElementById("eggRainbowImg"),
+  eggCloseBtn: document.getElementById("eggCloseBtn")
+};
 
-        // ========== 页面交互函数 ==========
-        /**
-         * 打开宠物详情页
-         * @param {string} petName 宠物名称
-         */
-        function openDetailPage(petName) {
-            // 隐藏首页元素
-            dom.searchBar.style.display = "none";
-            dom.eggTabs.style.display = "none";
-            dom.tipsText.style.display = "none";
-            dom.petGrid.style.display = "none";
-            
-            // 显示详情页元素
-            dom.resultPanel.style.display = "block";
-            dom.backBtn.style.display = "block";
+// ========== 工具函数 ==========
+// 获取宠物头像路径
+function getPetImageUrl(petName) {
+  const fileName = `${petName}.png`;
+  const url = PATH_CONFIG.getImageUrl(fileName);
+  console.log("宠物头像路径：", url); // 调试用，可删除
+  return url;
+}
 
-            // 获取当前宠物信息
-            const targetPet = petEggGroupData.find(p => p.name === petName);
-            const groupText = targetPet.groups.join(" / ");
-            
-            // 渲染当前宠物信息
-            dom.currentPet.innerHTML = `
-                <div class="big-img">
-                    <img 
-                        loading="lazy" 
-                        src="${getPetImgUrl(targetPet.name)}" 
-                        alt="${targetPet.name}" 
-                        onerror="this.onerror=null;this.src='https://via.placeholder.com/160?text=${encodeURIComponent(targetPet.name)}';"
-                    >
-                </div>
-                <div><strong>${targetPet.name}</strong></div>
-                <div style="font-size:14px; color:#666;">${groupText}</div>
-            `;
+// 获取宠物蛋图片路径
+function getEggImageUrl(petName, type) {
+  const fileName = `${petName}_蛋_${type}.png`;
+  const url = PATH_CONFIG.getImageUrl(fileName);
+  console.log("蛋图片路径：", url); // 调试用，可删除
+  return url;
+}
 
-            // 筛选匹配的宠物（有任意共同组别）
-            const matches = petEggGroupData.filter(p => {
-                if (p.name === petName) return false;
-                return p.groups.some(group => targetPet.groups.includes(group));
-            });
+// 生成占位符图片
+function getPlaceholderImage(text) {
+  return `https://via.placeholder.com/100?text=${encodeURIComponent(text)}`;
+}
 
-            // 渲染匹配列表
-            dom.matchList.innerHTML = "";
-            if (matches.length === 0) {
-                dom.matchList.innerHTML = "<div class='empty'>暂无匹配</div>";
-            } else {
-                matches.forEach(p => {
-                    const item = document.createElement("div");
-                    item.className = "match-item";
-                    const matchGroupText = p.groups.join(" / ");
-                    
-                    item.innerHTML = `
-                        <div class="small-img">
-                            <img 
-                                loading="lazy" 
-                                src="${getPetImgUrl(p.name)}" 
-                                alt="${p.name}" 
-                                onerror="this.onerror=null;this.src='https://via.placeholder.com/100?text=${encodeURIComponent(p.name)}';"
-                            >
-                        </div>
-                        <div class="pet-name">${p.name}</div>
-                        <div class="pet-group">${matchGroupText}</div>
-                    `;
-                    
-                    dom.matchList.appendChild(item);
-                });
-            }
-        }
+// ========== 孵蛋弹窗 ==========
+function openEggModal(petName) {
+  // 设置标题
+  dom.eggModalTitle.textContent = `${petName} 孵蛋预览`;
+  
+  // 普通蛋
+  dom.eggNormalImg.src = "";
+  dom.eggNormalImg.onerror = null;
+  dom.eggNormalImg.src = getEggImageUrl(petName, "普通");
+  dom.eggNormalImg.onerror = function() {
+    this.src = getPlaceholderImage(`${petName}-普通蛋`);
+  };
 
-        /**
-         * 返回首页
-         */
-        function goBack() {
-            dom.searchBar.style.display = "flex";
-            dom.eggTabs.style.display = "flex";
-            dom.tipsText.style.display = "block";
-            dom.petGrid.style.display = "grid";
-            dom.resultPanel.style.display = "none";
-            dom.backBtn.style.display = "none";
-        }
+  // 异色蛋
+  dom.eggSpecialImg.src = "";
+  dom.eggSpecialImg.onerror = null;
+  dom.eggSpecialImg.src = getEggImageUrl(petName, "异色");
+  dom.eggSpecialImg.onerror = function() {
+    this.src = getPlaceholderImage(`${petName}-异色蛋`);
+  };
 
-        /**
-         * 搜索宠物
-         */
-        function searchPet() {
-            const name = getSearchText();
-            if (!name) {
-                alert("请输入宠物名称");
-                return;
-            }
-            
-            const pet = petEggGroupData.find(p => p.name === name);
-            if (!pet) {
-                alert("未找到该宠物");
-                return;
-            }
-            
-            openDetailPage(pet.name);
-        }
+  // 炫彩蛋
+  dom.eggRainbowImg.src = "";
+  dom.eggRainbowImg.onerror = null;
+  dom.eggRainbowImg.src = getEggImageUrl(petName, "炫彩");
+  dom.eggRainbowImg.onerror = function() {
+    this.src = getPlaceholderImage(`${petName}-炫彩蛋`);
+  };
 
-        /**
-         * 清除搜索框
-         */
-        function clearSearch() {
-            dom.petSearch.value = "";
-            renderPetCards(getActiveGroup(), "");
-        }
+  // 显示弹窗
+  dom.eggModalOverlay.style.display = "flex";
+}
 
-        // ========== 初始化 ==========
-        document.addEventListener("DOMContentLoaded", () => {
-            // 初始渲染全部宠物
-            renderPetCards();
+// 关闭弹窗
+function closeEggModal() {
+  dom.eggModalOverlay.style.display = "none";
+}
 
-            // 蛋组标签切换事件
-            document.querySelectorAll(".egg-group-tab").forEach(tab => {
-                tab.addEventListener("click", () => {
-                    document.querySelectorAll(".egg-group-tab").forEach(t => t.classList.remove("active"));
-                    tab.classList.add("active");
-                    renderPetCards(tab.dataset.group, getSearchText());
-                    dom.petGrid.scrollIntoView({ behavior: "smooth" });
-                });
-            });
+// ========== 渲染宠物列表 ==========
+function renderPetList(group = "全部", keyword = "") {
+  dom.petGrid.innerHTML = "";
+  const filteredPets = petData.filter(pet => {
+    const matchGroup = group === "全部" || pet.groups.includes(group);
+    const matchKeyword = pet.name.includes(keyword);
+    return matchGroup && matchKeyword;
+  });
 
-            // 实时搜索筛选
-            dom.petSearch.addEventListener("input", (e) => {
-                renderPetCards(getActiveGroup(), e.target.value);
-            });
+  filteredPets.forEach(pet => {
+    const petCard = document.createElement("div");
+    petCard.className = "pet-card";
+    petCard.innerHTML = `
+      <div class="pet-img"><img src="${getPetImageUrl(pet.name)}" alt="${pet.name}" onerror="this.src='${getPlaceholderImage(pet.name)}'"></div>
+      <div class="pet-name">${pet.name}</div>
+      <div class="pet-group">${pet.groups.join(" / ")}</div>
+    `;
+    petCard.onclick = () => openPetDetail(pet.name);
+    dom.petGrid.appendChild(petCard);
+  });
+}
 
-            // 回车触发搜索
-            dom.petSearch.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") searchPet();
-            });
-        });
-    </script>
+// ========== 打开宠物详情页 ==========
+function openPetDetail(petName) {
+  // 隐藏首页元素
+  document.querySelector(".search-bar").style.display = "none";
+  document.querySelector(".egg-group-tabs").style.display = "none";
+  document.querySelector(".tips-text").style.display = "none";
+  dom.petGrid.style.display = "none";
+  // 显示详情页
+  dom.resultPanel.style.display = "block";
+  dom.backBtn.style.display = "block";
+
+  // 渲染当前宠物
+  const currentPet = petData.find(p => p.name === petName);
+  dom.currentPet.innerHTML = `
+    <div class="big-img"><img src="${getPetImageUrl(currentPet.name)}" alt="${currentPet.name}" onerror="this.src='${getPlaceholderImage(currentPet.name)}'"></div>
+    <div><strong>${currentPet.name}</strong></div>
+    <div style="font-size:14px;color:#666;">${currentPet.groups.join(" / ")}</div>
+  `;
+
+  // 渲染匹配宠物
+  const matchedPets = petData.filter(pet => {
+    return pet.name !== petName && pet.groups.some(group => currentPet.groups.includes(group));
+  });
+
+  dom.matchList.innerHTML = "";
+  if (matchedPets.length === 0) {
+    dom.matchList.innerHTML = "<div class='empty'>暂无匹配的孵蛋宠物</div>";
+    return;
+  }
+
+  matchedPets.forEach(pet => {
+    const matchItem = document.createElement("div");
+    matchItem.className = "match-item";
+    matchItem.innerHTML = `
+      <div class="small-img"><img src="${getPetImageUrl(pet.name)}" alt="${pet.name}" onerror="this.src='${getPlaceholderImage(pet.name)}'"></div>
+      <div class="pet-name">${pet.name}</div>
+      <div class="pet-group">${pet.groups.join(" / ")}</div>
+    `;
+    matchItem.onclick = () => openEggModal(pet.name);
+    dom.matchList.appendChild(matchItem);
+  });
+}
+
+// ========== 返回首页 ==========
+function goBackToHome() {
+  document.querySelector(".search-bar").style.display = "flex";
+  document.querySelector(".egg-group-tabs").style.display = "flex";
+  document.querySelector(".tips-text").style.display = "block";
+  dom.petGrid.style.display = "grid";
+  dom.resultPanel.style.display = "none";
+  dom.backBtn.style.display = "none";
+  closeEggModal();
+}
+
+// ========== 事件绑定 ==========
+// 搜索按钮
+document.querySelector(".search-btn").addEventListener("click", () => {
+  const keyword = dom.searchInput.value.trim();
+  if (!keyword) {
+    alert("请输入宠物名称！");
+    return;
+  }
+  const targetPet = petData.find(p => p.name === keyword);
+  if (targetPet) {
+    openPetDetail(targetPet.name);
+  } else {
+    alert("未找到该宠物，请检查名称是否正确！");
+  }
+});
+
+// 清空搜索框
+document.querySelector(".clear-btn").addEventListener("click", () => {
+  dom.searchInput.value = "";
+  renderPetList();
+});
+
+// 返回按钮
+dom.backBtn.addEventListener("click", goBackToHome);
+
+// 关闭弹窗
+dom.eggCloseBtn.addEventListener("click", closeEggModal);
+
+// 点击弹窗外层关闭
+dom.eggModalOverlay.addEventListener("click", (e) => {
+  if (e.target === dom.eggModalOverlay) {
+    closeEggModal();
+  }
+});
+
+// 搜索框实时过滤
+dom.searchInput.addEventListener("input", () => {
+  const activeGroup = document.querySelector(".egg-group-tab.active").dataset.group;
+  renderPetList(activeGroup, dom.searchInput.value);
+});
+
+// 搜索框回车
+dom.searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    document.querySelector(".search-btn").click();
+  }
+});
+
+// 蛋组标签切换
+document.querySelectorAll(".egg-group-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".egg-group-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    renderPetList(tab.dataset.group, dom.searchInput.value);
+  });
+});
+
+// ========== 初始化 ==========
+renderPetList();
+</script>
 </body>
 </html>
