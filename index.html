@@ -44,7 +44,6 @@ body{background:#f5f5f5;padding:20px}
   background: #fffbfc;
 }
 
-/* 异色标记图标 */
 .shiny-badge {
   position: absolute;
   top: 6px;
@@ -54,7 +53,6 @@ body{background:#f5f5f5;padding:20px}
   z-index: 10;
 }
 
-/* 基础图片容器（无异色宠物用） */
 .pet-img,.small-img{
   width:100px;
   height:100px;
@@ -74,7 +72,6 @@ body{background:#f5f5f5;padding:20px}
   object-fit:cover;
 }
 
-/* 双层图片容器 + 渐变切换（只有异色宠物用） */
 .dual-img-container {
   position:relative;
   width:100px;
@@ -94,12 +91,11 @@ body{background:#f5f5f5;padding:20px}
   width:100%;
   height:100%;
   object-fit:cover;
-  transition: opacity 0.9s ease;
+  transition: opacity 0.5s ease;
 }
 .dual-img-container .normal { opacity:1; }
 .dual-img-container .shiny { opacity:0; }
 
-/* 关键修复：同时匹配pet-card和match-item的悬浮切换 */
 .pet-card:hover .dual-img-container .normal,
 .match-item:hover .dual-img-container .normal {
   opacity:0;
@@ -109,7 +105,6 @@ body{background:#f5f5f5;padding:20px}
   opacity:1;
 }
 
-/* 详情页大图样式 */
 .current-pet .big-img{
   width:160px;height:160px;
   border-radius:12px;
@@ -122,14 +117,8 @@ body{background:#f5f5f5;padding:20px}
   color:#999;
   margin:0 auto;
 }
-/* 详情页普通大图 */
-.current-pet .big-img-single {
-  position:relative;
-}
-/* 详情页双层大图（异色宠物） */
-.current-pet .big-img-dual {
-  position:relative;
-}
+.current-pet .big-img-single { position:relative; }
+.current-pet .big-img-dual { position:relative; }
 .current-pet .big-img-dual img {
   position:absolute;
   width:100%;
@@ -156,7 +145,11 @@ body{background:#f5f5f5;padding:20px}
 .egg-title{font-size:20px;font-weight:bold;margin-bottom:20px}
 .egg-images{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
 .egg-item{width:100px}
-.egg-item img{width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#f6f6f6}
+.egg-img-container {
+  width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#f6f6f6;
+  display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;
+}
+.egg-img-container img { width:100%;height:100%;object-fit:cover; }
 .egg-label{margin-top:8px;font-size:14px;color:#555;font-weight:bold}
 </style>
 </head>
@@ -209,20 +202,7 @@ body{background:#f5f5f5;padding:20px}
   <div class="egg-modal">
     <span class="egg-close" id="eggCloseBtn">×</span>
     <div class="egg-title" id="eggModalTitle">孵蛋预览</div>
-    <div class="egg-images">
-      <div class="egg-item">
-        <div class="pet-img" id="eggNormalContainer"></div>
-        <div class="egg-label">普通蛋</div>
-      </div>
-      <div class="egg-item">
-        <div class="pet-img" id="eggSpecialContainer"></div>
-        <div class="egg-label">异色蛋</div>
-      </div>
-      <div class="egg-item">
-        <div class="pet-img" id="eggRainbowContainer"></div>
-        <div class="egg-label">炫彩蛋</div>
-      </div>
-    </div>
+    <div class="egg-images" id="eggImagesContainer"></div>
   </div>
 </div>
 
@@ -235,7 +215,6 @@ const PATH_CONFIG = {
 };
 PATH_CONFIG.init();
 
-// ✅ 18只异色宠物名单
 const SHINY_PETS = new Set([
   "贝古斯","恶魔狼","格兰球","粉星仔","红绒十字","酷拉","立方人",
   "利灯鱼","獠牙猪","奇丽花","窃光蚊","燃薪虫","小皮球","雪影娃娃",
@@ -408,13 +387,10 @@ const dom = {
   resultPanel: document.querySelector(".result-panel"),
   eggModalOverlay: document.getElementById("eggModalOverlay"),
   eggModalTitle: document.getElementById("eggModalTitle"),
-  eggNormalContainer: document.getElementById("eggNormalContainer"),
-  eggSpecialContainer: document.getElementById("eggSpecialContainer"),
-  eggRainbowContainer: document.getElementById("eggRainbowContainer"),
+  eggImagesContainer: document.getElementById("eggImagesContainer"),
   eggCloseBtn: document.getElementById("eggCloseBtn")
 };
 
-// 创建普通图片（无异色宠物）
 function createSingleImage(petName) {
   const container = document.createElement("div");
   container.className = "pet-img";
@@ -425,54 +401,47 @@ function createSingleImage(petName) {
   return container;
 }
 
-// 创建双层图片（只有异色宠物）
 function createDualImage(petName) {
   const container = document.createElement("div");
   container.className = "dual-img-container";
-
   const normal = document.createElement("img");
   normal.src = PATH_CONFIG.getImageUrl(`${petName}.png`);
   normal.className = "normal";
   normal.onerror = () => { container.innerHTML = "暂无素材"; };
-
   const shiny = document.createElement("img");
   shiny.src = PATH_CONFIG.getImageUrl(`${petName}_异色.png`);
   shiny.className = "shiny";
-
   container.appendChild(normal);
   container.appendChild(shiny);
   return container;
 }
 
-function getPetImageUrl(petName) { return PATH_CONFIG.getImageUrl(`${petName}.png`); }
-function getEggImageUrl(petName, type) { return PATH_CONFIG.getImageUrl(`${petName}_蛋_${type}.png`); }
-
+// ===================== 核心：自动检测蛋图是否存在，不存在则不显示 =====================
 function openEggModal(petName) {
   dom.eggModalTitle.textContent = `${petName} 孵蛋预览`;
-  
-  dom.eggNormalContainer.innerHTML = "";
-  // 孵蛋弹窗里也区分是否有异色
-  if (SHINY_PETS.has(petName)) {
-    dom.eggNormalContainer.appendChild(createDualImage(petName));
-  } else {
-    dom.eggNormalContainer.appendChild(createSingleImage(petName));
-  }
-  
-  dom.eggSpecialContainer.innerHTML = "";
-  const specialImg = document.createElement("img");
-  specialImg.src = getEggImageUrl(petName, "异色");
-  specialImg.style.width = "100%";
-  specialImg.style.height = "100%";
-  specialImg.style.objectFit = "cover";
-  dom.eggSpecialContainer.appendChild(specialImg);
-  
-  dom.eggRainbowContainer.innerHTML = "";
-  const rainbowImg = document.createElement("img");
-  rainbowImg.src = getEggImageUrl(petName, "炫彩");
-  rainbowImg.style.width = "100%";
-  rainbowImg.style.height = "100%";
-  rainbowImg.style.objectFit = "cover";
-  dom.eggRainbowContainer.appendChild(rainbowImg);
+  dom.eggImagesContainer.innerHTML = "";
+
+  const eggTypes = [
+    { type: "普通", label: "普通蛋" },
+    { type: "异色", label: "异色蛋" },
+    { type: "炫彩", label: "炫彩蛋" }
+  ];
+
+  eggTypes.forEach(egg => {
+    const url = PATH_CONFIG.getImageUrl(`${petName}_蛋_${egg.type}.png`);
+    const img = new Image();
+    img.src = url;
+
+    img.onload = () => {
+      const item = document.createElement("div");
+      item.className = "egg-item";
+      item.innerHTML = `
+        <div class="egg-img-container"><img src="${url}"></div>
+        <div class="egg-label">${egg.label}</div>
+      `;
+      dom.eggImagesContainer.appendChild(item);
+    };
+  });
 
   dom.eggModalOverlay.style.display = "flex";
 }
@@ -485,35 +454,11 @@ function renderPetList(group = "全部", keyword = "") {
   list.forEach(p => {
     const el = document.createElement("div");
     el.className = "pet-card";
-    
-    // 只有异色宠物显示右上角图标
-    let badge = "";
-    if (SHINY_PETS.has(p.name)) {
-      badge = `<img src="${PATH_CONFIG.getImageUrl('icon_shiny.png')}" class="shiny-badge">`;
-    }
-
-    // 区分图片类型：异色宠物用双层，其他用单层
-    let imgHtml = "";
-    if (SHINY_PETS.has(p.name)) {
-      imgHtml = `<div class="dual-img-container"></div>`;
-    } else {
-      imgHtml = `<div class="pet-img"></div>`;
-    }
-
-    el.innerHTML = `
-      ${badge}
-      ${imgHtml}
-      <div class="pet-name">${p.name}</div>
-      <div class="pet-group">${p.groups.join(" / ")}</div>
-    `;
-
-    // 插入对应图片
-    if (SHINY_PETS.has(p.name)) {
-      el.querySelector(".dual-img-container").replaceWith(createDualImage(p.name));
-    } else {
-      el.querySelector(".pet-img").replaceWith(createSingleImage(p.name));
-    }
-
+    let badge = SHINY_PETS.has(p.name) ? `<img src="${PATH_CONFIG.getImageUrl('icon_shiny.png')}" class="shiny-badge">` : "";
+    let imgHtml = SHINY_PETS.has(p.name) ? `<div class="dual-img-container"></div>` : `<div class="pet-img"></div>`;
+    el.innerHTML = `${badge}${imgHtml}<div class="pet-name">${p.name}</div><div class="pet-group">${p.groups.join(" / ")}</div>`;
+    if (SHINY_PETS.has(p.name)) el.querySelector(".dual-img-container").replaceWith(createDualImage(p.name));
+    else el.querySelector(".pet-img").replaceWith(createSingleImage(p.name));
     el.onclick = () => openPetDetail(p.name);
     dom.petGrid.appendChild(el);
   });
@@ -528,67 +473,22 @@ function openPetDetail(petName) {
   dom.backBtn.style.display = "block";
 
   const self = petData.find(p => p.name === petName);
-  
-  // 详情页大图区分是否有异色
-  let bigImgHtml = "";
-  if (SHINY_PETS.has(petName)) {
-    bigImgHtml = `
-      <div class="big-img big-img-dual">
-        <img src="${PATH_CONFIG.getImageUrl(`${petName}.png`)}" class="normal">
-        <img src="${PATH_CONFIG.getImageUrl(`${petName}_异色.png`)}" class="shiny">
-      </div>
-    `;
-  } else {
-    bigImgHtml = `
-      <div class="big-img big-img-single">
-        <img src="${PATH_CONFIG.getImageUrl(`${petName}.png`)}">
-      </div>
-    `;
-  }
+  let bigImgHtml = SHINY_PETS.has(petName)
+    ? `<div class="big-img big-img-dual"><img src="${PATH_CONFIG.getImageUrl(`${petName}.png`)}" class="normal"><img src="${PATH_CONFIG.getImageUrl(`${petName}_异色.png`)}" class="shiny"></div>`
+    : `<div class="big-img big-img-single"><img src="${PATH_CONFIG.getImageUrl(`${petName}.png`)}"></div>`;
 
-  dom.currentPet.innerHTML = `
-    ${bigImgHtml}
-    <div><strong>${self.name}</strong></div>
-    <div style="font-size:14px;color:#666;">${self.groups.join(" / ")}</div>
-  `;
+  dom.currentPet.innerHTML = `${bigImgHtml}<div><strong>${self.name}</strong></div><div style="font-size:14px;color:#666;">${self.groups.join(" / ")}</div>`;
 
   const matches = petData.filter(p => p.name !== petName && p.groups.some(g => self.groups.includes(g)));
-  dom.matchList.innerHTML = "";
-  if (!matches.length) {
-    dom.matchList.innerHTML = "<div class='empty'>暂无匹配</div>";
-    return;
-  }
-  
+  dom.matchList.innerHTML = matches.length ? "" : "<div class='empty'>暂无匹配</div>";
   matches.forEach(p => {
     const el = document.createElement("div");
     el.className = "match-item";
-    
-    // 只有异色宠物显示右上角图标
-    let badge = "";
-    if (SHINY_PETS.has(p.name)) {
-      badge = `<img src="${PATH_CONFIG.getImageUrl('icon_shiny.png')}" class="shiny-badge">`;
-    }
-
-    // 关键修复：匹配列表里的异色宠物也用dual-img-container
-    let imgContainer = document.createElement("div");
-    if (SHINY_PETS.has(p.name)) {
-      imgContainer = createDualImage(p.name); // 直接创建双层图片容器
-    } else {
-      imgContainer = createSingleImage(p.name); // 普通单层图片
-      imgContainer.className = "small-img"; // 匹配列表小图样式
-    }
-
-    // 组装匹配项HTML
-    el.innerHTML = `
-      ${badge}
-      <div class="img-placeholder"></div>
-      <div class="pet-name">${p.name}</div>
-      <div class="pet-group">${p.groups.join(" / ")}</div>
-    `;
-
-    // 替换占位符为实际图片容器
+    let badge = SHINY_PETS.has(p.name) ? `<img src="${PATH_CONFIG.getImageUrl('icon_shiny.png')}" class="shiny-badge">` : "";
+    let imgContainer = SHINY_PETS.has(p.name) ? createDualImage(p.name) : createSingleImage(p.name);
+    if (!SHINY_PETS.has(p.name)) imgContainer.className = "small-img";
+    el.innerHTML = `${badge}<div class="img-placeholder"></div><div class="pet-name">${p.name}</div><div class="pet-group">${p.groups.join(" / ")}</div>`;
     el.querySelector(".img-placeholder").replaceWith(imgContainer);
-
     el.onclick = () => openEggModal(p.name);
     dom.matchList.appendChild(el);
   });
